@@ -1,4 +1,0 @@
-
-PORT = puerto de la aplicación
-MONGODB_CNN = conexion a la base de datos
-```
