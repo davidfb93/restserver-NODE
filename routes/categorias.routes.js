@@ -1,7 +1,13 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
 
-const { validarCampos } = require('../middlewares/validar-campos');
+const { validarJWT, validarCampos, esAdminRol } = require('../middlewares');
+const { crearCategoria, 
+        getCategorias, 
+        getCategoriaById, 
+        actualizarCategoria,  
+        eliminarCategoria} = require('../controllers/categorias.controler');
+const { existeCategoriaPorId } = require('../helpers/db-validators');
 
 
 const router = Router();
@@ -11,38 +17,37 @@ const router = Router();
  */
 
 // Obtener todas las categorias - publico
-router.get('/', (req, res) => {
-    res.json({
-        msg: 'get API - categorias'
-    })
-});
+router.get('/', getCategorias);
 
 // Obtener una categoria por id - publico
-router.get('/:id', (req, res) => {
-    res.json({
-        msg: 'get API - categorias por ID'
-    })
-});
+router.get('/:id',[
+    check('id', 'No es un id de Mongo valido').isMongoId(),
+    check('id').custom( existeCategoriaPorId ),
+    validarCampos,
+], getCategoriaById );
 
 // Crear categoria - privado - cualquier persona con un token valido
-router.post('/', (req, res) => {
-    res.json({
-        msg: 'post API - categorias'
-    })
-});
+router.post('/', [ 
+    validarJWT,
+    check('nombre', 'El nombre es obligatorio').not().isEmpty(),
+    validarCampos
+] , crearCategoria);
 
 // Actualizar - privado - cualquier persona con un token valido
-router.put('/:id', (req, res) => {
-    res.json({
-        msg: 'put API - categorias'
-    })
-});
+router.put('/:id', [
+    validarJWT,
+    check('nombre', 'El nombre es obligatorio').not().isEmpty(),
+    check('id').custom( existeCategoriaPorId ),
+    validarCampos
+] ,actualizarCategoria);
 
 // Borrar una categoria - Admin
-router.delete('/:id', (req, res) => {
-    res.json({
-        msg: 'delete API - categorias'
-    })
-});
+router.delete('/:id', [
+    validarJWT,
+    esAdminRol,
+    check('id', 'No es un id de Mongo valido').isMongoId(),
+    check('id').custom( existeCategoriaPorId ),
+    validarCampos,
+] ,eliminarCategoria);
 
 module.exports = router;
