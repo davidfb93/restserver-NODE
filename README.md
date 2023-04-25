@@ -1,4 +1,4 @@
-# restserver-NODE
+# Restserver-NODE
 RestServer basico completo con node js, aplicación back para una cafeteria, este desarollo incluye temas puntuales como JWT, Google Sign In, conexión a bd Mongo, entre otros,
 
 ### Pasos para ejecutar el proyecto:
