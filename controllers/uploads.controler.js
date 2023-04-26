@@ -10,8 +10,21 @@ const cargarArchivo = async (req, res = response) => {
     }
 
     const { archivo } = req.files;
+    const nombreCortado = archivo.name.split('.');
+    const extensionArchivo = nombreCortado[ nombreCortado.length - 1 ];
 
-    const uploadPath = path.join( __dirname , '../uploads/' , archivo.name);
+    // Validar extension
+    const extensionesValidas = ['png', 'jpg', 'jpeg', 'gif'];
+
+    if ( !extensionesValidas.includes( extensionArchivo ) ) {
+        return res.status(400).json({
+            msg: `La extensión ${ extensionArchivo } no es permitida, las permitidas son ${ extensionesValidas }`
+        })
+    }
+
+    res.json({ extensionArchivo })
+
+/*     const uploadPath = path.join( __dirname , '../uploads/' , archivo.name);
 
     archivo.mv(uploadPath,  (err) => {
         if (err) {
@@ -20,7 +33,7 @@ const cargarArchivo = async (req, res = response) => {
         }
 
         res.json({ msg: 'File uploaded to ' + uploadPath });
-    });
+    }); */
 
 }
 
