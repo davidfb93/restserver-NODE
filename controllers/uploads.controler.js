@@ -1,6 +1,5 @@
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
 const { response } = require("express");
+const { subirArchivo } = require("../helpers");
 
 const cargarArchivo = async (req, res = response) => {
 
@@ -10,31 +9,15 @@ const cargarArchivo = async (req, res = response) => {
         return;
     }
 
-    const { archivo } = req.files;
-    const nombreCortado = archivo.name.split('.');
-    const extensionArchivo = nombreCortado[ nombreCortado.length - 1 ];
-
-    // Validar extension
-    const extensionesValidas = ['png', 'jpg', 'jpeg', 'gif'];
-
-    if ( !extensionesValidas.includes( extensionArchivo ) ) {
-        return res.status(400).json({
-            msg: `La extensión ${ extensionArchivo } no es permitida, las permitidas son ${ extensionesValidas }`
-        })
+    try {
+        //imagenes
+        //const nombre = await subirArchivo( req.files, ['txt', 'md', 'jpg'], 'imagenes' );
+        const nombre = await subirArchivo( req.files, undefined, 'imgs');
+        res.json({ nombre })
+        
+    } catch (msg) {
+        res.status(400).json({ msg })
     }
-
-    const nombreTemp = uuidv4() + '.' + extensionArchivo;
-    const uploadPath = path.join( __dirname , '../uploads/' , nombreTemp);
-
-    archivo.mv(uploadPath,  (err) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json(err);
-        }
-
-        res.json({ msg: 'File uploaded to ' + uploadPath });
-    });
-
 }
 
 module.exports = {
