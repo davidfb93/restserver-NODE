@@ -1,6 +1,9 @@
+const path = require('path');
+const fs   = require('fs');
 const { response } = require("express");
+
+const { Usuario, Producto } = require("../models");
 const { subirArchivo } = require("../helpers");
-const { Usuario,Producto } = require("../models");
 
 const cargarArchivo = async (req, res = response) => {
 
@@ -24,7 +27,7 @@ const actualizarImagen = async (req, res = response) => {
     switch (coleccion) {
         case 'usuarios':
             modelo = await Usuario.findById(id);
-            if (!modelo ) {
+            if (!modelo) {
                 return res.status(400).json({ msg: `No existe un usuario con el id ${id}` });
             }
 
@@ -40,12 +43,22 @@ const actualizarImagen = async (req, res = response) => {
             return res.status(500).json({ msg: 'Sin validación actualmente' });
     }
 
-     const nombre = await subirArchivo(req.files, undefined, coleccion);
-     modelo.img = nombre;
+    // Limpiar imágenes previas
+    if (modelo.img) {
+        // Borrar imagen previa
+        const pathImagen = path.join(__dirname, '../uploads', coleccion, modelo.img);
+        if ( fs.existsSync( pathImagen ) ){
+            fs.unlinkSync( pathImagen );
+        }
+    }
 
-     await modelo.save();
 
-    res.json( modelo )
+    const nombre = await subirArchivo(req.files, undefined, coleccion);
+    modelo.img = nombre;
+
+    await modelo.save();
+
+    res.json(modelo)
 
 }
 
